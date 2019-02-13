@@ -1,3 +1,6 @@
+#ifndef SOURCE_H
+#define SOURCE_H
+
 #include<vector>
 
 using namespace std;
@@ -20,3 +23,5 @@ PointSource::PointSource(double x, double y, double power)
   position[1] = y;
   Power = power;
 };
+
+#endif

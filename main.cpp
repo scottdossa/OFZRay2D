@@ -1,6 +1,7 @@
 #include <mpi.h>
 #include <stdio.h>
-#include "Particle/Particle.h"
+#include "Include/Particle.h"
+#include "Include/Boundary.h"
 
 int main (int argc, char *argv[]) {
 
@@ -12,8 +13,9 @@ int main (int argc, char *argv[]) {
 
   printf("Ray Tracing on %d processors\n", world_size);
 
-  PointSource ps(0,0,1);
+  PointSource ps(0.5,0.5,1);
   Particle p(ps);
+  Boundary Bounds(1,1);
 
   printf("%f, %f\n", p.GetPosition()[0], p.GetPosition()[1]);
 

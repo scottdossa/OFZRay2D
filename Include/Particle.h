@@ -1,7 +1,10 @@
+#ifndef PARTICLE_H
+#define PARTICLE_H
+
 #include <vector>
 #include <math.h>
 #include <stdio.h>
-#include "../Source/Source.h"
+#include "Source.h"
 
 using namespace std;
 
@@ -23,3 +26,5 @@ Particle::Particle(PointSource ps)
   position = ps.GetPosition();
   unit_velocity.resize(2);
 };
+
+#endif
