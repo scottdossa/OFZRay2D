@@ -15,12 +15,17 @@ int main (int argc, char *argv[]) {
   if(world_rank==0)
     printf("Ray Tracing on %d processors\n", world_size);
 
-  PointSource ps(0.5,0.5,1);
+  PointSource ps(1.0,1.0,1);
   Particle p(ps);
+  p.SetVelocity(0,-1);
   Boundary Bounds(1,1);
 
   vector< vector<double> > Nodes = { {0.7,0.6}, {0.7,0.7}, {0.5,0.7}, {0.5,0.6} };
   Absorber A(Nodes);
+
+  if(world_rank==0)
+    printf("Closest side is %d\n",A.ClosestSide(p));
+
 
   MPI_Finalize();
 }
