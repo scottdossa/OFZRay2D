@@ -13,7 +13,7 @@ class PointSource
 public:
   PointSource(double, double, double);
   vector<double> GetPosition(){return position;};
-  double  GetPower(){return Power;};
+  double GetPower(){return Power;};
 };
 
 PointSource::PointSource(double x, double y, double power)
