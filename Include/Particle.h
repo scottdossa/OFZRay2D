@@ -1,9 +1,7 @@
 #ifndef PARTICLE_H
 #define PARTICLE_H
 
-#include <vector>
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
 #include "Source.h"
 
 using namespace std;
