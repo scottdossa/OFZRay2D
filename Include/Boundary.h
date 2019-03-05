@@ -10,6 +10,7 @@ class Boundary
 {
   vector<int> collision_count;
   vector< vector<double> > nodes;
+  int NumNodes;
 
 public:
   Boundary(vector< vector<double> >);
@@ -18,12 +19,14 @@ public:
   double FindDistance(int, Particle);
   int ClosestSide(Particle);
   void CountCollision(int i){collision_count[i]++;};
+  int GetNumNodes(){return NumNodes;};
 };
 
 Boundary::Boundary(vector< vector<double> > Nodes)
 {
   nodes = Nodes;
   vector<int> counts(Nodes.size(),0.);
+  NumNodes = Nodes.size();
   collision_count = counts;
 };
 

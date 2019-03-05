@@ -24,51 +24,23 @@ void Ray_Trace(Particle);
 void Write_CSV();
 
 public:
-  Driver();
+  Driver(double, int);
   void Run_Program();
+
+  void Add_Mirror(double x, double y, double a, double e, int xy, int lrtb)
+    {Mirror m(x,y,a,e,xy,lrtb);Mirrors.push_back(m);};
+  void Add_Source(double x, double y, double p)
+    {PointSource ps(x,y,p); Sources.push_back(ps);};
+  void Add_Boundary(vector< vector<double> > Nodes)
+    {Boundary b(Nodes);Boundaries.push_back(b);}
 };
 
-Driver::Driver()
+Driver::Driver(double size, int Num)
 {
-  NumParticles = pow(10,5);
-  vector< vector< double > > b1 = {{-5000,-5000},{5000,-5000},{5000,5000},{-5000,5000}};
-  Boundaries.push_back(b1);
-  double x_min = -100;
-  double length = 2*abs(x_min);
-  int NumElem = 50;
-  vector< vector<double> > b2 = {{x_min, 0}};
-  for(int i=1; i<NumElem+1; i++)
-    b2.push_back({x_min+length*double(i)/double(NumElem),0});
-  b2.push_back({0,5});
-  Boundaries.push_back(b2);
-  Mirror m1(0, -100, 150, 0.6666666666667, 1, 3);
-
-  Mirrors.push_back(m1);
-
-  PointSource p(0, -200,1 );
-  Sources.push_back(p);
-  /*double s1 = 74, p1 = 396, s2 = 151, p2 = 504;
-  //printf("Edge of system = %f\nFocal Point = %f\n",s1+2*p1+2*p2+s2, s1+2*p1+2*p2);
-  vector< vector< double > > b1 = {{-5000,-5000},{5000,-5000},{5000,5000},{-5000,5000}};
-  Boundaries.push_back(b1);
-  double f2 = s1+2*p1+2*p2;
-  double length = 40.;
-  double radius = 5.;
-  double NumElem = 40;
-  vector< vector< double> > b2 = {{-radius,f2-length/2.}};
-  for(int i=0; i<NumElem; i++)
-    b2.push_back({radius, f2-length/2.+length*double(i)/double(NumElem)});
-  b2.push_back({radius,f2+length/2.});
-  //for(int i=0; i<NumElem; i++)
-  //  b2.push_back({-radius, f2+length/2.-length*double(i)/double(NumElem)});
-  b2.push_back({-radius,f2+length/2.});
-  Boundaries.push_back(b2);
-  PointSource ps(0,s1,1.);
-  Sources.push_back(ps);
-  Mirror m1(0,s1+p1,s1+p1,0.842553,1,3);
-  Mirrors.push_back(m1);
-  Mirror m2(0,s1+2*p1+p2,s2+p2,0.769466,1,2);
-  Mirrors.push_back(m2);*/
+  NumParticles = Num;
+  vector< vector<double> > nodes = {{-size, -size},{size, -size},{size,size},{-size,size}};
+  Boundary b(nodes);
+  Boundaries.push_back(b);
 };
 
 void Driver::Ray_Trace(Particle p)
@@ -131,6 +103,8 @@ void Driver::Run_Program()
   MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
   int NumSources = Sources.size();
+  if(NumSources==0)
+    return;
   int NumParticles_Per_Source = NumParticles/NumSources;
   double initial_angle;
   PointSource ps = Sources[0];
@@ -154,9 +128,8 @@ void Driver::Write_CSV()
 {
   ofstream csv_file;
   csv_file.open("rt.csv");
-  int NumElem = 50;
-  for(int i=0; i<NumElem; i++)
-    csv_file << Boundaries[1].GetNode(i)[0]<<","<<Boundaries[1].GetCounts()[i]<<"\n";
+  for(int i=0; i<Boundaries[1].GetNumNodes(); i++)
+    csv_file << Boundaries[1].GetNode(i)[1]<<","<<Boundaries[1].GetCounts()[i]<<"\n";
   csv_file.close();
 };
 
