@@ -25,7 +25,7 @@ void Write_CSV();
 
 public:
   Driver(double, int);
-  void Run_Program();
+  void Run_Program(double, double);
 
   void Add_Mirror(double x, double y, double a, double e, int xy, int lrtb)
     {Mirror m(x,y,a,e,xy,lrtb);Mirrors.push_back(m);};
@@ -33,6 +33,8 @@ public:
     {PointSource ps(x,y,p); Sources.push_back(ps);};
   void Add_Boundary(vector< vector<double> > Nodes)
     {Boundary b(Nodes);Boundaries.push_back(b);}
+
+  Mirror GetMirror(int i){return Mirrors[i];};
 };
 
 Driver::Driver(double size, int Num)
@@ -62,41 +64,41 @@ void Driver::Ray_Trace(Particle p)
       distance_min=distance;
     }
   }
-  //printf("Min Boundary distance = %f\n",distance_min);
   for(int i=0; i<Mirrors.size(); i++)
   {
     distance=Mirrors[i].FindDistance(p);
-    if(distance > pow(10,-8) && distance<distance_min)
+    if(distance > pow(10,-50) && distance<distance_min)
     {
       distance_min=distance;
       closest_side=-1;
       closest_mirror=i;
     }
   }
-  if(closest_boundary>-1 && closest_side>-1)
+  if(closest_mirror==-1 && closest_boundary>-1)
   {
-    //if(closest_boundary>0 && closest_side!=0)
-    //printf("Hit at = (%d, %d)\n",closest_boundary,closest_side);
+    //if(closest_boundary==1)
+    //  printf("hit\n");
     Boundaries[closest_boundary].CountCollision(closest_side);
     return;
   }
-  if(closest_mirror>-1)
+  else if(closest_mirror>-1)
   {
-    //printf("Intersection Point = (%f, %f)\n",p.GetPosition()[0]+p.GetVelocity()[0]*distance,p.GetPosition()[1]+p.GetVelocity()[1]*distance);
-    //printf("Reflection at (%d) mirror\n",closest_mirror);
+    //printf("Reflected at Mirror %d\n",closest_mirror);
     vector<double> vel = p.GetVelocity();
     p.SetPosition(p.GetPosition()[0]+distance_min*vel[0],p.GetPosition()[1]+distance_min*vel[1]);
     vel = Mirrors[closest_mirror].ReflectedVelocity(p);
-    //printf("velocity reflected = (%f,%f)\n",vel[0],vel[1]);
-    //printf("Angle between old and new = %f\n",180./M_PI* acos(vel[0]*p.GetVelocity()[0]+vel[1]*p.GetVelocity()[1]));
     p.SetVelocity(vel[0],vel[1]);
-    //Ray_Trace(p);
+    Ray_Trace(p);
     return;
   }
-  return;
+  else
+  {
+    printf("Error: Particle lost\n");
+    return;
+  }
 };
 
-void Driver::Run_Program()
+void Driver::Run_Program(double theta_min, double theta_max)
 {
   int world_size, world_rank;
   MPI_Comm_size(MPI_COMM_WORLD, &world_size);
@@ -114,7 +116,7 @@ void Driver::Run_Program()
     ps = Sources[source];
     for(int i = NumParticles_Per_Source/world_size*world_rank; i<NumParticles_Per_Source/world_size*(world_rank+1); i++)
     {
-      initial_angle = 2*M_PI*double(i)/double(NumParticles_Per_Source);
+      initial_angle = theta_min+(theta_max-theta_min)*double(i)/double(NumParticles_Per_Source);
       //printf("---------------------\nAngle = (%f, %f)\n",cos(initial_angle),sin(initial_angle));
       p.SetPosition(ps.GetPosition()[0],ps.GetPosition()[1]);
       p.SetVelocity(cos(initial_angle),sin(initial_angle));
